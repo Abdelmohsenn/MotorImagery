@@ -86,8 +86,8 @@ def CARandNon_Spectrum3channelsONLY():
     plt.figure(figsize=(10, 10))
     for i in range(3):
 
-        signal_col = signals3.iloc[:, i]  
-        n = len(signals3)
+        signal_col = signals1.iloc[:, i]  
+        n = len(signals1)
         fourier = np.fft.fftfreq(n, step)
         spectrum = np.fft.fft(signal_col)
         
@@ -99,7 +99,7 @@ def CARandNon_Spectrum3channelsONLY():
         plt.ylabel('Magnitude')
         
     # CAR spectrum of 1st 3 channels
-        signal_col_filtered = ComputeCARfiltersignal3().iloc[:, i]
+        signal_col_filtered = ComputeCARfilterSignal1().iloc[:, i]
         n = len(signal_col_filtered)
         fourier_filtered = np.fft.fftfreq(n, step)
         spectrum_filtered = np.fft.fft(signal_col_filtered)
