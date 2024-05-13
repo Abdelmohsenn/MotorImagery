@@ -6,6 +6,8 @@ from scipy.signal import welch
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 # Load data for all subjects
 # def readsubject1():
@@ -136,12 +138,12 @@ def CARandNon_Spectrum3channelsONLY():
     
 
     
-comparing(ComputeCARfilterSignal2(), signals2)
+#comparing(ComputeCARfilterSignal2(), signals2)
 
 # comparing(ComputeCARfilterSignal1(), signals1)
 # comparing(ComputeCARfiltersignal3(), signals3)
 
-CARandNon_Spectrum3channelsONLY()
+#CARandNon_Spectrum3channelsONLY()
 
 # def muband():
 #     mubandexample = bandpassFilter(signals1.iloc[:,1],8,13,5)
@@ -199,27 +201,27 @@ electrodeidx = 7
 # mubandexample = muband()
 # betabandexample = betaband()
 
-plt.figure(figsize=(10,10))
-plt.subplot(6,1,1)
-plt.plot(mu_band_signals[f'Electrode{electrodeidx + 1}'])
-plt.title("Muband")
-plt.xlabel("time")
-plt.ylabel("Signals")
+# plt.figure(figsize=(10,10))
+# plt.subplot(6,1,1)
+# plt.plot(mu_band_signals[f'Electrode{electrodeidx + 1}'])
+# plt.title("Muband")
+# plt.xlabel("time")
+# plt.ylabel("Signals")
 
-plt.subplot(6,1,3)
-plt.plot(signals1.iloc[:, electrodeidx])
-plt.title("ORIGINAL Signal")
-plt.xlabel("time")
-plt.ylabel("Signals")
+# plt.subplot(6,1,3)
+# plt.plot(signals1.iloc[:, electrodeidx])
+# plt.title("ORIGINAL Signal")
+# plt.xlabel("time")
+# plt.ylabel("Signals")
 
-plt.subplot(6,1,5)
-plt.plot(beta_band_signals[f'Electrode{electrodeidx + 1}'])
-plt.title("Beta band")
-plt.xlabel("time")
-plt.ylabel("Signals")
+# plt.subplot(6,1,5)
+# plt.plot(beta_band_signals[f'Electrode{electrodeidx + 1}'])
+# plt.title("Beta band")
+# plt.xlabel("time")
+# plt.ylabel("Signals")
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
 
 # Example function to find relative change in Mu band power for each trial
 def rel_changes(sigs, trial_starts):
@@ -247,3 +249,37 @@ relativeChanges_beta = rel_changes(beta_band_signals, trials1)
 
 print("Relative changes in Mu band power for each electrode and trial:", relativeChanges_mu)
 print("Relative changes in Mu band power for each electrode and trial:", relativeChanges_beta)
+
+# Split data into training and testing sets
+# X_train_mu, X_test_mu, y_train, y_test = train_test_split(mu_band_signals, labels1, test_size=0.2, random_state=42)
+# X_train_beta, X_test_beta, _, _ = train_test_split(beta_band_signals, labels1, test_size=0.2, random_state=42)
+
+# # Initialize lists to store accuracy for Mu and Beta bands
+# mu_band_acc = []
+# beta_band_acc = []
+
+# # Loop over values of K from 1 to 10
+# for k in range(1, 11):
+#     # Initialize KNN classifier with K neighbors for Mu band
+#     knn_mu = KNeighborsClassifier(n_neighbors=k)
+#     knn_mu.fit(X_train_mu, y_train)
+#     mu_band_acc.append(knn_mu.score(X_test_mu, y_test))
+
+#     # Initialize KNN classifier with K neighbors for Beta band
+#     knn_beta = KNeighborsClassifier(n_neighbors=k)
+#     knn_beta.fit(X_train_beta, y_train)
+#     beta_band_acc.append(knn_beta.score(X_test_beta, y_test))
+    
+    
+# print (mu_band_acc)
+
+# # Plot the accuracies
+# plt.figure(figsize=(10, 6))
+# plt.plot(range(1, 11), mu_band_acc, label='Mu Band')
+# plt.plot(range(1, 11), beta_band_acc, label='Beta Band')
+# plt.xlabel('K')
+# plt.ylabel('Accuracy')
+# plt.title('KNN Classifier Accuracy for Mu and Beta Bands')
+# plt.xticks(range(1, 11))
+# plt.legend()
+# plt.show()
