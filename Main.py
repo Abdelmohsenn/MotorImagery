@@ -8,23 +8,40 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 
 # Load data for all subjects
+# def readsubject1():
+#     signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
+#     labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labelscsv')
+#     trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trials.csv')
+#     return signals1, labels1, trials1
+# def readsubject2():
+#     signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
+#     labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labelscsv')
+#     trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trials.csv')
+#     return signals2, labels2, trials2
+# def readsubject3():
+#     signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
+#     labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labelscsv')
+#     trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trials.csv')
+#     return signals3, labels3, trials3
+
+
 def readsubject1():
-    signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
-    labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labelscsv')
-    trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trials.csv')
+    signals1 = pd.read_csv('Subject1_Signals.csv')
+    labels1 = pd.read_csv('Subject1_Labels.csv')
+    trials1 = pd.read_csv('Subject1_Trial.csv')
     return signals1, labels1, trials1
 def readsubject2():
-    signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
-    labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labelscsv')
-    trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trials.csv')
+    signals2 = pd.read_csv('Subject2_Signals.csv')
+    labels2 = pd.read_csv('Subject2_Labels.csv')
+    trials2 = pd.read_csv('Subject2_Trial.csv')
     return signals2, labels2, trials2
 def readsubject3():
-    signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
-    labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labelscsv')
-    trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trials.csv')
+    signals3 = pd.read_csv('Subject3_Signals.csv')
+    labels3 = pd.read_csv('Subject3_Labels.csv')
+    trials3 = pd.read_csv('Subject3_Trial.csv')
     return signals3, labels3, trials3
 
-signals1,labels1,trials1=readsubject1()
+signals1,labels1,trials1= readsubject1()
 signals2,labels2,trials2=readsubject2()
 signals3,labels3,trials3=readsubject3()
 
@@ -41,14 +58,42 @@ def ComputeCARfilterSignal1():
     average_signal = signals1.mean(axis=1)
     CommonAvFiltered = signals1.sub(average_signal, axis=0)
     return CommonAvFiltered
+
 def ComputeCARfilterSignal2():
     average_signal = signals2.mean(axis=1)
     CommonAvFiltered = signals2.sub(average_signal, axis=0)
     return CommonAvFiltered
+
 def ComputeCARfiltersignal3():  
     average_signal = signals3.mean(axis=1)
     CommonAvFiltered = signals3.sub(average_signal, axis=0)
     return CommonAvFiltered
+
+
+
+#the filtered data and the non filtered comparing func (3 channels only)
+def comparing(filtered, nonfiltered):
+    plt.figure(figsize=(10, 6))
+    for i in range(min(3, filtered.shape[1])):  
+        plt.subplot(3, 1, i + 1)
+        plt.plot(filtered.index, filtered.iloc[:, i])
+        plt.title(f'Filtered Signal of Channel {i + 1}')
+        plt.xlabel('Sample Index')
+        plt.ylabel('Amplitude')
+    # plt.tight_layout()
+    # plt.show()
+
+    plt.figure(figsize=(10, 6))
+    for i in range(min(3, nonfiltered.shape[1])):  
+        plt.subplot(3, 1, i + 1)
+        plt.plot(nonfiltered.index, nonfiltered.iloc[:, i])
+        plt.title(f'Original Signal of Channel {i + 1}')
+        plt.xlabel('Sample Index')
+        plt.ylabel('Amplitude')
+    plt.tight_layout()
+    plt.show()
+
+# Example usage
 
 def bandpassFilter(signal,lowcut,highcut,order):
     nyq=0.5*Fs
@@ -57,30 +102,6 @@ def bandpassFilter(signal,lowcut,highcut,order):
     sig1,sig2 = butter(order,[low,high],btype='band')
     sig=filtfilt(sig1,sig2,signal)
     return sig
-
-
-#the filtered data and the non filtered comparing func (3 channels only)
-def comparing():
-    plt.figure(figsize=(10, 6))
-    for i in range(min(3, ComputeCARfiltersignal3().shape[1])):  
-        plt.subplot(3, 1, i + 1)
-        plt.plot(ComputeCARfiltersignal3().index, ComputeCARfiltersignal3().iloc[:, i])
-        plt.title(f'CAR Filtered Signal of Channel {i + 1}')
-        plt.xlabel('Sample Index')
-        plt.ylabel('Amplitude')
-    # plt.tight_layout()
-    # plt.show()
-    #the og data
-    plt.figure(figsize=(10, 6))
-    for i in range(min(3, signals3.shape[1])):  
-        plt.subplot(3, 1, i + 1)
-        plt.plot(signals3.index, signals3.iloc[:, i])
-        plt.title(f'Original Signal of Channel {i + 1}')
-        plt.xlabel('Sample Index')
-        plt.ylabel('Amplitude')
-    plt.tight_layout()
-    plt.show()
-
 
 def CARandNon_Spectrum3channelsONLY():
     plt.figure(figsize=(10, 10))
@@ -112,45 +133,117 @@ def CARandNon_Spectrum3channelsONLY():
 
     plt.tight_layout()
     plt.show()
+    
 
-# comparing()
-# CARandNon_Spectrum3channelsONLY()
-#
-def muband():
-    mubandexample=bandpassFilter(signals1.iloc[:,i],8,13,5)
-def betaband():
-    betabandexample=bandpassFilter(signals1.iloc[:,1],13,30,5)
+    
+comparing(ComputeCARfilterSignal2(), signals2)
 
-mubandexample=muband()
-betabandexample=betaband()
+# comparing(ComputeCARfilterSignal1(), signals1)
+# comparing(ComputeCARfiltersignal3(), signals3)
+
+CARandNon_Spectrum3channelsONLY()
+
+# def muband():
+#     mubandexample = bandpassFilter(signals1.iloc[:,1],8,13,5)
+# def betaband():
+#     betabandexample=bandpassFilter(signals1.iloc[:,1],13,30,5)
+    
+
+def bandpass_signals(sig):
+    mu_band_signals = {}
+    beta_band_signals = {}
+    for i in range(sig.shape[1]):  # Iterate over (electrodes)
+        signalcol = sig.iloc[:, i]
+        muBand_signal = bandpassFilter(signalcol,8,13,5)
+        betaBand_signal = bandpassFilter(signalcol,13,30,5)
+        mu_band_signals[f'Electrode{i+1}'] = muBand_signal
+        beta_band_signals[f'Electrode{i+1}'] = betaBand_signal
+    return mu_band_signals, beta_band_signals
+
+
+mu_band_signals, beta_band_signals = bandpass_signals(signals1)
+
+# for electrode, signal in mu_band_signals.items():
+#     print(f"Mu for {electrode}: {signal}")
+#     print() 
+
+# for electrode, signal in beta_band_signals.items():
+#     print(f"Beta for {electrode}: {signal}")
+#     print() 
+    
+#print(signals1.index) 
+
+# Choose the electrode index to plot
+electrodeidx = 7
+
+# # Plot original and filtered signals for the chosen electrode
+# plt.figure(figsize=(12, 6))
+# plt.subplot(2, 1, 1)
+# plt.plot(signals1.index, signals1.iloc[:, electrodeidx], label='Original Signal')
+# plt.title(f'Original Signal - Electrode {electrodeidx + 1}')
+# plt.xlabel('Sample Index')
+# plt.ylabel('Amplitude')
+# plt.legend()
+
+# plt.subplot(2, 1, 2)
+# plt.plot(signals1.index, mu_band_signals[f'Electrode{electrodeidx + 1}'], label='Mu Band Filtered Signal', color='orange')
+# plt.plot(signals1.index, beta_band_signals[f'Electrode{electrodeidx + 1}'], label='Beta Band Filtered Signal', color='green')
+# plt.title(f'Filtered Signals - Electrode {electrodeidx + 1}')
+# plt.xlabel('Sample Index')
+# plt.ylabel('Amplitude')
+# plt.legend()
+
+# plt.tight_layout()
+# plt.show()
+
+# mubandexample = muband()
+# betabandexample = betaband()
 
 plt.figure(figsize=(10,10))
 plt.subplot(6,1,1)
-plt.plot(mubandexample)
+plt.plot(mu_band_signals[f'Electrode{electrodeidx + 1}'])
 plt.title("Muband")
 plt.xlabel("time")
 plt.ylabel("Signals")
+
 plt.subplot(6,1,3)
-plt.plot(signals1.iloc[:, 1])
+plt.plot(signals1.iloc[:, electrodeidx])
 plt.title("ORIGINAL Signal")
 plt.xlabel("time")
 plt.ylabel("Signals")
+
 plt.subplot(6,1,5)
-plt.plot(betabandexample)
+plt.plot(beta_band_signals[f'Electrode{electrodeidx + 1}'])
 plt.title("Beta band")
 plt.xlabel("time")
 plt.ylabel("Signals")
 
 plt.tight_layout()
 plt.show()
-# signals = pd.read_csv('Subject1_Signals.csv')
 
-# # Iterate over each column (electrode) and print the data
-# for col in signals.columns[3]:
-#     #print(f"Electrode {col+1} Signals:")
-#     print(signals[col].to_string(index=False))  # Print the signals in the column without index
-#     print("\n")  # Add a newline for better readability
+# Example function to find relative change in Mu band power for each trial
+def rel_changes(sigs, trial_starts):
+    relchanges={}
+    for electrode, signal in sigs.items():
+        relative_changes = []
+        for start in trial_starts:
+            startSample = int(float(start))
+            trial_data = signal[startSample:startSample + Fs * 5]
+            preonset_data = signal[startSample - Fs * 5:startSample]
 
-#print(electrode_data)
+            power_trial = np.mean(trial_data ** 2)
+            power_pre_onset = np.mean(preonset_data ** 2)
 
+            relative_change = (power_trial - power_pre_onset) / power_pre_onset
+            relative_changes.append(relative_change)
 
+        relchanges[electrode] = relative_changes
+
+    return relchanges
+
+# Example usage
+relativeChanges_mu = rel_changes(mu_band_signals, trials1)
+relativeChanges_beta = rel_changes(beta_band_signals, trials1)
+
+print("Relative changes in Mu band power for each electrode and trial:", relativeChanges_mu)
+print("Relative changes in Mu band power for each electrode and trial:", relativeChanges_beta)
