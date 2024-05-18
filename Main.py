@@ -8,40 +8,42 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_predict
 
 # Load data for all subjects
-# def readsubject1():
-#     signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
-#     labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
-#     trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
-#     return signals1, labels1, trials1
-# def readsubject2():
-#     signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
-#     labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv')
-#     trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
-#     return signals2, labels2, trials2
-# def readsubject3():
-#     signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
-#     labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv')
-#     trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
-#     return signals3, labels3, trials3
-
-
 def readsubject1():
-    signals1 = pd.read_csv('Subject1_Signals.csv')
-    labels1 = pd.read_csv('Subject1_Labels.csv',header=None)
-    trials1 = pd.read_csv('Subject1_Trial.csv')
+    signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
+    labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
+    trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
     return signals1, labels1, trials1
 def readsubject2():
-    signals2 = pd.read_csv('Subject2_Signals.csv')
-    labels2 = pd.read_csv('Subject2_Labels.csv')
-    trials2 = pd.read_csv('Subject2_Trial.csv')
+    signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
+    labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv', header=None)
+    trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
     return signals2, labels2, trials2
 def readsubject3():
-    signals3 = pd.read_csv('Subject3_Signals.csv')
-    labels3 = pd.read_csv('Subject3_Labels.csv')
-    trials3 = pd.read_csv('Subject3_Trial.csv')
+    signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
+    labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv', header=None)
+    trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
     return signals3, labels3, trials3
+
+
+# def readsubject1():
+#     signals1 = pd.read_csv('Subject1_Signals.csv')
+#     labels1 = pd.read_csv('Subject1_Labels.csv',header=None)
+#     trials1 = pd.read_csv('Subject1_Trial.csv')
+#     return signals1, labels1, trials1
+# def readsubject2():
+#     signals2 = pd.read_csv('Subject2_Signals.csv')
+#     labels2 = pd.read_csv('Subject2_Labels.csv',header = None)
+#     trials2 = pd.read_csv('Subject2_Trial.csv')
+#     return signals2, labels2, trials2
+# def readsubject3():
+#     signals3 = pd.read_csv('Subject3_Signals.csv')
+#     labels3 = pd.read_csv('Subject3_Labels.csv' ,header = None)
+#     trials3 = pd.read_csv('Subject3_Trial.csv')
+#     return signals3, labels3, trials3
 
 signals1,labels1,trials1= readsubject1()
 signals2,labels2,trials2=readsubject2()
@@ -97,13 +99,6 @@ def comparing(filtered, nonfiltered):
 
 # Example usage
 
-def bandpassFilter(signal,lowcut,highcut,order):
-    nyq=0.5*Fs
-    low=lowcut/nyq
-    high=highcut/nyq
-    sig1,sig2 = butter(order,[low,high],btype='band')
-    sig=filtfilt(sig1,sig2,signal)
-    return sig
 
 def CARandNon_Spectrum3channelsONLY():
     plt.figure(figsize=(10, 10))
@@ -137,144 +132,117 @@ def CARandNon_Spectrum3channelsONLY():
     plt.show()
     
 
-    
-#comparing(ComputeCARfilterSignal2(), signals2)
+def bandpassFilter(signal, lowcut, highcut, order):
+    nyq = 0.5 * Fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    sig1, sig2 = butter(order, [low, high], btype='band')
+    sig = filtfilt(sig1, sig2, signal)
+    return sig
 
-# comparing(ComputeCARfilterSignal1(), signals1)
-# comparing(ComputeCARfiltersignal3(), signals3)
+# Compute relative changes
+def rel_changes(signal, trial_starts):
+    relative_changes = []
+    for start in trial_starts:
+        startSample = int(float(start))
+        trial_data = signal[startSample:startSample + Fs * 5]
+        preonset_data = signal[startSample - Fs * 5:startSample]
 
-#CARandNon_Spectrum3channelsONLY()
+        power_trial = np.mean(trial_data ** 2)
+        power_pre_onset = np.mean(preonset_data ** 2)
 
-# def muband():
-#     mubandexample = bandpassFilter(signals1.iloc[:,1],8,13,5)
-# def betaband():
-#     betabandexample=bandpassFilter(signals1.iloc[:,1],13,30,5)
-    
+        relative_change = (power_trial - power_pre_onset) / power_pre_onset
+        relative_changes.append(abs(relative_change))
 
-def bandpass_signals(sig):
-    mu_band_signals = {}
-    beta_band_signals = {}
-    for i in range(sig.shape[1]):  # Iterate over (electrodes)
-        signalcol = sig.iloc[:, i]
-        muBand_signal = bandpassFilter(signalcol,8,13,5)
-        betaBand_signal = bandpassFilter(signalcol,13,30,5)
-        mu_band_signals[f'Electrode{i+1}'] = muBand_signal
-        beta_band_signals[f'Electrode{i+1}'] = betaBand_signal
-    return mu_band_signals, beta_band_signals
+    return np.array(relative_changes)
 
+muband = bandpassFilter(signals1.iloc[:,0], 8, 13, 5)
+relchangeofoneelectrode=rel_changes(muband, trials1)
 
-mu_band_signals, beta_band_signals = bandpass_signals(signals1)
+# print(relchangeofoneelectrode)
+# KNN with cross_val_predict
+def knn_crossval_predict(X, y, cv=10):
+    predictions = []
 
-# for electrode, signal in mu_band_signals.items():
-#     print(f"Mu for {electrode}: {signal}")
-#     print() 
+    for k in range(1, 11):
+        knn = KNeighborsClassifier(n_neighbors=k)
+        y_pred = cross_val_predict(knn, X.reshape(-1,1), y, cv=cv)
+        predictions.append(y_pred)
 
-# for electrode, signal in beta_band_signals.items():
-#     print(f"Beta for {electrode}: {signal}")
-#     print() 
-    
-#print(signals1.index) 
+    return predictions
 
-# Choose the electrode index to plot
-# electrodeidx = 7
+# Evaluate predictions
+def Evaluate10foldErrors(predictions, y):
+    errors = []
 
-# # Plot original and filtered signals for the chosen electrode
-# plt.figure(figsize=(12, 6))
-# plt.subplot(2, 1, 1)
-# plt.plot(signals1.index, signals1.iloc[:, electrodeidx], label='Original Signal')
-# plt.title(f'Original Signal - Electrode {electrodeidx + 1}')
-# plt.xlabel('Sample Index')
-# plt.ylabel('Amplitude')
-# plt.legend()
+    for y_pred in predictions:
+        accuracy = accuracy_score(y, y_pred)
+        error = 1 - accuracy
+        errors.append(error)
 
-# plt.subplot(2, 1, 2)
-# plt.plot(signals1.index, mu_band_signals[f'Electrode{electrodeidx + 1}'], label='Mu Band Filtered Signal', color='orange')
-# plt.plot(signals1.index, beta_band_signals[f'Electrode{electrodeidx + 1}'], label='Beta Band Filtered Signal', color='green')
-# plt.title(f'Filtered Signals - Electrode {electrodeidx + 1}')
-# plt.xlabel('Sample Index')
-# plt.ylabel('Amplitude')
-# plt.legend()
-
-# plt.tight_layout()
-# plt.show()
-
-# mubandexample = muband()
-# betabandexample = betaband()
-
-# plt.figure(figsize=(10,10))
-# plt.subplot(6,1,1)
-# plt.plot(mu_band_signals[f'Electrode{electrodeidx + 1}'])
-# plt.title("Muband")
-# plt.xlabel("time")
-# plt.ylabel("Signals")
-
-# plt.subplot(6,1,3)
-# plt.plot(signals1.iloc[:, electrodeidx])
-# plt.title("ORIGINAL Signal")
-# plt.xlabel("time")
-# plt.ylabel("Signals")
-
-# plt.subplot(6,1,5)
-# plt.plot(beta_band_signals[f'Electrode{electrodeidx + 1}'])
-# plt.title("Beta band")
-# plt.xlabel("time")
-# plt.ylabel("Signals")
-
-# plt.tight_layout()
-# plt.show()
-
-# Example function to find relative change in Mu band power for each trial
-
-def rel_changes(sigs, trial_starts, Fs):
-    relchanges = {}
-    for electrode, signal in sigs.items():
-        relative_changes = []
-        for start in trial_starts:
-            startSample = int(float(start))
-            trial_data = signal[startSample:startSample + Fs * 5]
-            preonset_data = signal[startSample - Fs * 5:startSample]
-
-            power_trial = np.mean(trial_data ** 2)
-            power_pre_onset = np.mean(preonset_data ** 2)
-
-            relative_change = (power_trial - power_pre_onset) / power_pre_onset
-            relative_changes.append(abs(relative_change))
-
-        relchanges[electrode] = relative_changes
-
-    df = pd.DataFrame(relchanges)
-    return df
-
-# Example usage
-
-relativeChanges_mu = rel_changes(mu_band_signals, trials1, Fs)
-relativeChanges_beta = rel_changes(beta_band_signals, trials1, Fs)
-
-#print("Relative changes in Mu band power for each electrode and trial: \n", relativeChanges_mu)
-#print("Relative changes in Beta band power for each electrode and trial: \n", relativeChanges_beta)
+    return errors
 
 
-relchangesmu = relativeChanges_mu.values.reshape(20, 15)  # 20 trials, 15 electrodes
-labels1ID = labels1.values.flatten()
+# predictval=knn_crossval_predict(relchangeofoneelectrode,labels1ID)
+# errors=Evaluate10foldErrors(predictval,labels1ID)
 
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(relchangesmu, labels1ID, test_size=0.2, random_state=42)
+# print(errors)
 
-# Initialize lists to store accuracy for Mu and Beta bands
-mu_band_knn = []
-beta_band_knn = []
+def Subjectloop(Signals,Trials,Labels):
 
-# Loop over values of K from 1 to 10
-for k in range(1, 11):
-    # Initialize KNN classifier with K neighbors for Mu band
-    knn_mu = KNeighborsClassifier(n_neighbors=k)
-    knn_mu.fit(X_train, y_train)
-    mu_band_knn.append(knn_mu.score(X_test, y_test))
+    Labels = Labels.values.flatten()
+    least_error = float('inf')
+    best_electrode = None
+    best_band = None
+    best_k = None
 
-    # Initialize KNN classifier with K neighbors for Beta band
-    # knn_beta = KNeighborsClassifier(n_neighbors=k)
-    # knn_beta.fit(X_train_beta, y_train)
-    # beta_band_knn.append(knn_beta.score(X_test_beta, y_test))
-    
-    
-print (mu_band_knn)
+    for electrode in range(Signals.shape[1]):
+        # print(f"Processing Electrode {electrode + 1}")
+
+        mu_band_signal = bandpassFilter(Signals.iloc[:, electrode], 8, 13, 5)
+        beta_band_signal = bandpassFilter(Signals.iloc[:, electrode], 13, 30, 5)
+
+        rel_changes_mu = rel_changes(mu_band_signal, Trials)
+        rel_changes_beta = rel_changes(beta_band_signal, Trials)
+
+        # print(f"Relative changes for Electrode {electrode + 1} computed")
+
+        mu_predictions = knn_crossval_predict(rel_changes_mu, Labels)
+        beta_predictions = knn_crossval_predict(rel_changes_beta, Labels)
+
+        # print(f"KNN predictions for Electrode {electrode + 1} computed")
+
+        mu_errors_cv = Evaluate10foldErrors(mu_predictions, Labels)
+        beta_errors_cv = Evaluate10foldErrors(beta_predictions, Labels)
+
+        # print(f"KNN errors for Electrode {electrode + 1} evaluated")
+
+        min_mu_error = min(mu_errors_cv)
+        min_beta_error = min(beta_errors_cv)
+
+        if min_mu_error < least_error:
+            least_error = min_mu_error
+            best_electrode = electrode + 1
+            best_band = 'Mu'
+            best_k = mu_errors_cv.index(min_mu_error) + 1
+
+        if min_beta_error < least_error:
+            least_error = min_beta_error
+            best_electrode = electrode + 1
+            best_band = 'Beta'
+            best_k = beta_errors_cv.index(min_beta_error) + 1
+
+        # print(f"Electrode {electrode + 1} - Mu Band Errors: {mu_errors_cv}")
+        # print(f"Electrode {electrode + 1} - Beta Band Errors: {beta_errors_cv}")
+
+    print(f"Best Electrode: {best_electrode}")
+    print(f"Best Band: {best_band}")
+    print(f"Best K: {best_k}")
+    print(f"Least 10-fold Classification Error: {least_error}")
+
+print("Subject 1")
+Subjectloop(signals1,trials1,labels1)
+print("Subject 2")
+Subjectloop(signals2,trials2,labels2)
+print("Subject 3")
+Subjectloop(signals3,trials3,labels3)
