@@ -54,7 +54,7 @@ step = 1/Fs
 #electrode_data = signals.to_string(index=False, max_rows=None, max_cols=None) # This will give you a numpy array of shape (number of samples, number of electrodes)
 electrode_data = signals1.to_string(index=False, max_rows=None, max_cols=None)
 # electrode_data2 = signals2.to_string(index=False, max_rows=None, max_cols=None)
-# electrode_data3 = signals3.to_string(index=False, max_rows=None, max_cols=None)
+# electrode_data33 = signals3.to_string(index=False, max_rows=None, max_cols=None)
 
 
 # CAR filters
