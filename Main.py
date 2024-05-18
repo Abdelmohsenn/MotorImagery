@@ -10,38 +10,38 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 # Load data for all subjects
-def readsubject1():
-    signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
-    labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
-    trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
-    return signals1, labels1, trials1
-def readsubject2():
-    signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
-    labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv')
-    trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
-    return signals2, labels2, trials2
-def readsubject3():
-    signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
-    labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv')
-    trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
-    return signals3, labels3, trials3
-
-
 # def readsubject1():
-#     signals1 = pd.read_csv('Subject1_Signals.csv')
-#     labels1 = pd.read_csv('Subject1_Labels.csv')
-#     trials1 = pd.read_csv('Subject1_Trial.csv')
+#     signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
+#     labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
+#     trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
 #     return signals1, labels1, trials1
 # def readsubject2():
-#     signals2 = pd.read_csv('Subject2_Signals.csv')
-#     labels2 = pd.read_csv('Subject2_Labels.csv')
-#     trials2 = pd.read_csv('Subject2_Trial.csv')
+#     signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
+#     labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv')
+#     trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
 #     return signals2, labels2, trials2
 # def readsubject3():
-#     signals3 = pd.read_csv('Subject3_Signals.csv')
-#     labels3 = pd.read_csv('Subject3_Labels.csv')
-#     trials3 = pd.read_csv('Subject3_Trial.csv')
+#     signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
+#     labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv')
+#     trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
 #     return signals3, labels3, trials3
+
+
+def readsubject1():
+    signals1 = pd.read_csv('Subject1_Signals.csv')
+    labels1 = pd.read_csv('Subject1_Labels.csv',header=None)
+    trials1 = pd.read_csv('Subject1_Trial.csv')
+    return signals1, labels1, trials1
+def readsubject2():
+    signals2 = pd.read_csv('Subject2_Signals.csv')
+    labels2 = pd.read_csv('Subject2_Labels.csv')
+    trials2 = pd.read_csv('Subject2_Trial.csv')
+    return signals2, labels2, trials2
+def readsubject3():
+    signals3 = pd.read_csv('Subject3_Signals.csv')
+    labels3 = pd.read_csv('Subject3_Labels.csv')
+    trials3 = pd.read_csv('Subject3_Trial.csv')
+    return signals3, labels3, trials3
 
 signals1,labels1,trials1= readsubject1()
 signals2,labels2,trials2=readsubject2()
@@ -250,12 +250,15 @@ def rel_changes(sigs, trial_starts, Fs):
 relativeChanges_mu = rel_changes(mu_band_signals, trials1, Fs)
 relativeChanges_beta = rel_changes(beta_band_signals, trials1, Fs)
 
-# print("Relative changes in Mu band power for each electrode and trial: \n", relativeChanges_mu)
-# print("Relative changes in Beta band power for each electrode and trial: \n", relativeChanges_beta)
+#print("Relative changes in Mu band power for each electrode and trial: \n", relativeChanges_mu)
+#print("Relative changes in Beta band power for each electrode and trial: \n", relativeChanges_beta)
 
-print(labels1)
+
+relchangesmu = relativeChanges_mu.values.reshape(20, 15)  # 20 trials, 15 electrodes
+labels1ID = labels1.values.flatten()
+
 # Split data into training and testing sets
-X_train_mu, X_test_mu, y_train, y_test = train_test_split(relativeChanges_mu, labels1, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(relchangesmu, labels1ID, test_size=0.2, random_state=42)
 
 # Initialize lists to store accuracy for Mu and Beta bands
 mu_band_knn = []
@@ -265,8 +268,8 @@ beta_band_knn = []
 for k in range(1, 11):
     # Initialize KNN classifier with K neighbors for Mu band
     knn_mu = KNeighborsClassifier(n_neighbors=k)
-    knn_mu.fit(X_train_mu, y_train)
-    mu_band_knn.append(knn_mu.score(X_test_mu, y_test))
+    knn_mu.fit(X_train, y_train)
+    mu_band_knn.append(knn_mu.score(X_test, y_test))
 
     # Initialize KNN classifier with K neighbors for Beta band
     # knn_beta = KNeighborsClassifier(n_neighbors=k)
@@ -275,14 +278,3 @@ for k in range(1, 11):
     
     
 print (mu_band_knn)
-
-# # Plot the accuracies
-# plt.figure(figsize=(10, 6))
-# plt.plot(range(1, 11), mu_band_acc, label='Mu Band')
-# plt.plot(range(1, 11), beta_band_acc, label='Beta Band')
-# plt.xlabel('K')
-# plt.ylabel('Accuracy')
-# plt.title('KNN Classifier Accuracy for Mu and Beta Bands')
-# plt.xticks(range(1, 11))
-# plt.legend()
-# plt.show()
