@@ -12,38 +12,38 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_predict
 
 # Load data for all subjects
-def readsubject1():
-    signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
-    labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
-    trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
-    return signals1, labels1, trials1
-def readsubject2():
-    signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
-    labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv', header=None)
-    trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
-    return signals2, labels2, trials2
-def readsubject3():
-    signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
-    labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv', header=None)
-    trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
-    return signals3, labels3, trials3
-
-
 # def readsubject1():
-#     signals1 = pd.read_csv('Subject1_Signals.csv')
-#     labels1 = pd.read_csv('Subject1_Labels.csv',header=None)
-#     trials1 = pd.read_csv('Subject1_Trial.csv')
+#     signals1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Signals.csv')
+#     labels1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Labels.csv', header=None)
+#     trials1 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject1_Trial.csv')
 #     return signals1, labels1, trials1
 # def readsubject2():
-#     signals2 = pd.read_csv('Subject2_Signals.csv')
-#     labels2 = pd.read_csv('Subject2_Labels.csv',header = None)
-#     trials2 = pd.read_csv('Subject2_Trial.csv')
+#     signals2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Signals.csv')
+#     labels2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Labels.csv', header=None)
+#     trials2 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject2_Trial.csv')
 #     return signals2, labels2, trials2
 # def readsubject3():
-#     signals3 = pd.read_csv('Subject3_Signals.csv')
-#     labels3 = pd.read_csv('Subject3_Labels.csv' ,header = None)
-#     trials3 = pd.read_csv('Subject3_Trial.csv')
+#     signals3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Signals.csv')
+#     labels3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Labels.csv', header=None)
+#     trials3 = pd.read_csv('/Users/muhammadabdelmohsen/Downloads/Project-5/Subject3_Trial.csv')
 #     return signals3, labels3, trials3
+
+
+def readsubject1():
+    signals1 = pd.read_csv('Subject1_Signals.csv')
+    labels1 = pd.read_csv('Subject1_Labels.csv',header=None)
+    trials1 = pd.read_csv('Subject1_Trial.csv')
+    return signals1, labels1, trials1
+def readsubject2():
+    signals2 = pd.read_csv('Subject2_Signals.csv')
+    labels2 = pd.read_csv('Subject2_Labels.csv',header = None)
+    trials2 = pd.read_csv('Subject2_Trial.csv')
+    return signals2, labels2, trials2
+def readsubject3():
+    signals3 = pd.read_csv('Subject3_Signals.csv')
+    labels3 = pd.read_csv('Subject3_Labels.csv' ,header = None)
+    trials3 = pd.read_csv('Subject3_Trial.csv')
+    return signals3, labels3, trials3
 
 signals1,labels1,trials1= readsubject1()
 signals2,labels2,trials2=readsubject2()
@@ -189,29 +189,32 @@ def rel_changes_concatenated(sigs, trial_starts, Fs):
 
 # print(relchangeofoneelectrode)
 # KNN with cross_val_predict
-def knn_crossval_predict(X, y, cv=10):
-    predictions = []
+def knn_crossval_predict(X, y):
+    errors = []
 
     for k in range(1, 11):
         knn = KNeighborsClassifier(n_neighbors=k)
+        k_folds = KFold(n_splits=10)
         if X.ndim == 1:
-            y_pred = cross_val_predict(knn, X.reshape(-1, 1), y, cv=cv)
+            y_pred = cross_val_predict(knn, X.reshape(-1, 1), y, cv=k_folds)
         else:
-            y_pred = cross_val_predict(knn, X, y, cv=cv)
-        predictions.append(y_pred)
-
-    return predictions
-
-# Evaluate predictions
-def Evaluate10foldErrors(predictions, y):
-    errors = []
-
-    for y_pred in predictions:
-        accuracy = accuracy_score(y, y_pred)
-        error = 1 - accuracy
+            y_pred = cross_val_predict(knn, X, y, cv=k_folds)
+        ##Evaluating predictions
+        error = 1 - accuracy_score(y, y_pred)
         errors.append(error)
 
     return errors
+
+# # Evaluate predictions
+# def Evaluate10foldErrors(predictions, y):
+#     errors = []
+
+#     for y_pred in predictions:
+#         accuracy = accuracy_score(y, y_pred)
+#         error = 1 - accuracy
+#         errors.append(error)
+
+#     return errors
 
 
 # predictval=knn_crossval_predict(relchangeofoneelectrode,labels1ID)
@@ -237,13 +240,13 @@ def Subjectloop(Signals,Trials,Labels):
 
         # print(f"Relative changes for Electrode {electrode + 1} computed")
 
-        mu_predictions = knn_crossval_predict(rel_changes_mu, Labels)
-        beta_predictions = knn_crossval_predict(rel_changes_beta, Labels)
+        mu_errors_cv = knn_crossval_predict(rel_changes_mu, Labels)
+        beta_errors_cv = knn_crossval_predict(rel_changes_beta, Labels)
 
         # print(f"KNN predictions for Electrode {electrode + 1} computed")
 
-        mu_errors_cv = Evaluate10foldErrors(mu_predictions, Labels)
-        beta_errors_cv = Evaluate10foldErrors(beta_predictions, Labels)
+        # mu_errors_cv = Evaluate10foldErrors(mu_predictions, Labels)
+        # beta_errors_cv = Evaluate10foldErrors(beta_predictions, Labels)
 
         # print(f"KNN errors for Electrode {electrode + 1} evaluated")
 
@@ -279,20 +282,17 @@ def Concatenated_Error(Signals, Trials, Labels):
 
     Concatenatedmu1, Concatenatedbeta1 = bandpass_signals(Signals)
     
-
     # Compute relative changes for Mu band 
     ConcrelativeChanges_mu1 = rel_changes_concatenated(Concatenatedmu1, Trials, Fs)
-   
 
     # Compute relative changes for Beta band 
     ConcrelativeChanges_beta1 = rel_changes_concatenated(Concatenatedbeta1, Trials, Fs)
-    
 
-    mu_predictions1 = knn_crossval_predict(ConcrelativeChanges_mu1, Labels)
-    mu_errors_cv1 = Evaluate10foldErrors(mu_predictions1, Labels)
+    mu_errors_cv1 = knn_crossval_predict(ConcrelativeChanges_mu1, Labels)
+    #mu_errors_cv1 = Evaluate10foldErrors(mu_predictions1, Labels)
 
-    beta_predictions1 = knn_crossval_predict(ConcrelativeChanges_beta1, Labels)
-    beta_errors_cv1 = Evaluate10foldErrors(beta_predictions1, Labels)
+    beta_errors_cv1 = knn_crossval_predict(ConcrelativeChanges_beta1, Labels)
+    #beta_errors_cv1 = Evaluate10foldErrors(beta_predictions1, Labels)
 
     min_mu_error1 = min(mu_errors_cv1)
     min_beta_error1 = min(beta_errors_cv1)
@@ -308,24 +308,35 @@ def Concatenated_Error(Signals, Trials, Labels):
 
     print(f"Best Band of concatenated sigs  {best_band}")
     print(f"Best K of the concatenated sigs: {best_k}")
-    print(f"Least 10-fold Classification Error of the concatenated sigs: {least_error}")
+    print(f"Least 10-fold Classification Error of the concatenated sigs: {round(least_error,3)}")
 
-    return best_band, best_k, least_error
+    return best_band, best_k, round(least_error,3)
 
 # Run the Concatenated Error function
 
-# returning the best
-print("Subject 1: ")
-best_electrode, best_band, best_k,least_error=Subjectloop(signals1,trials1,labels1)
-print("Subject 2: ")
-best_electrode2, best_band2, best_k2,least_error2=Subjectloop(signals2,trials2,labels2)
-print("Subject 3: ")
-best_electrode3, best_band3, best_k3,least_error3=Subjectloop(signals3,trials3,labels3)
+# # returning the best
+# print("Subject 1: ")
+# best_electrode, best_band, best_k,least_error= Subjectloop(signals1,trials1,labels1)
+# print("Subject 2: ")
+# best_electrode2, best_band2, best_k2,least_error2= Subjectloop(signals2,trials2,labels2)
+# print("Subject 3: ")
+# best_electrode3, best_band3, best_k3,least_error3= Subjectloop(signals3,trials3,labels3)
 
 # avgerror=least_error+least_error2+least_error3
 # # average error
 # avgerror=avgerror/3
 # print(avgerror)
+
 print("Concatenated:")
 print("--------------------------------------------------------------------------------------------------------:")
+print("Concatenated SUBJECT 1:")
 Concatenated_Error(signals1,trials1,labels1)
+print(" ")
+
+print("Concatenated SUBJECT 2:")
+Concatenated_Error(signals2,trials2,labels2)
+print(" ")
+
+print("Concatenated SUBJECT 3:")
+Concatenated_Error(signals3,trials3,labels3)
+print(" ")
