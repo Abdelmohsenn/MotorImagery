@@ -48,7 +48,7 @@ def readsubject3():
 signals1,labels1,trials1= readsubject1()
 signals2,labels2,trials2=readsubject2()
 signals3,labels3,trials3=readsubject3()
-
+allLeasterrors = float
 Fs = 512
 step = 1/Fs
 #electrode_data = signals.to_string(index=False, max_rows=None, max_cols=None) # This will give you a numpy array of shape (number of samples, number of electrodes)
@@ -187,7 +187,6 @@ def Evaluate10foldErrors(predictions, y):
 # errors=Evaluate10foldErrors(predictval,labels1ID)
 
 # print(errors)
-
 def Subjectloop(Signals,Trials,Labels):
 
     Labels = Labels.values.flatten()
@@ -235,14 +234,14 @@ def Subjectloop(Signals,Trials,Labels):
         # print(f"Electrode {electrode + 1} - Mu Band Errors: {mu_errors_cv}")
         # print(f"Electrode {electrode + 1} - Beta Band Errors: {beta_errors_cv}")
 
-    print(f"Best Electrode: {best_electrode}")
-    print(f"Best Band: {best_band}")
-    print(f"Best K: {best_k}")
-    print(f"Least 10-fold Classification Error: {least_error}")
+    return best_electrode, best_band, best_k, least_error
 
-print("Subject 1")
-Subjectloop(signals1,trials1,labels1)
-print("Subject 2")
-Subjectloop(signals2,trials2,labels2)
-print("Subject 3")
-Subjectloop(signals3,trials3,labels3)
+
+
+best_electrode, best_band, best_k,least_error=Subjectloop(signals1,trials1,labels1)
+best_electrode2, best_band2, best_k2,least_error2=Subjectloop(signals2,trials2,labels2)
+best_electrode3, best_band3, best_k3,least_error3=Subjectloop(signals3,trials3,labels3)
+
+avgerror=least_error+least_error2+least_error3
+avgerror=avgerror/3
+print(avgerror)
